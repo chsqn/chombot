@@ -2,7 +2,7 @@ package pl.krakow.riichi.chombot.commands.hand
 
 import discord4j.core.`object`.entity.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
-import pl.krakow.riichi.chombot.commands.Command
+import pl.krakow.riichi.chombot.commands.interfaces.CommandMessageCreate
 import reactor.core.publisher.Mono
 
 /*
@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
  *  - -w sets style to white (default),
  *  - -b sets style to black.
  */
-class DrawHandCommand : Command {
+class DrawHandCommand : CommandMessageCreate() {
     class InvalidParameterException(parameter: String) : Exception("Invalid parameter: `$parameter`")
 
     companion object {
@@ -144,7 +144,7 @@ class DrawHandCommand : Command {
         }.then()
     }
 
-    override fun execute(event: MessageCreateEvent): Mono<Void> {
+    override fun executeMessageCreate(event: MessageCreateEvent): Mono<Void> {
         if (!event.message.content.isPresent)
             return Mono.empty()
         return try {

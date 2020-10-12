@@ -2,7 +2,7 @@ package pl.krakow.riichi.chombot.commands.chombo
 
 import discord4j.core.event.domain.message.MessageCreateEvent
 import kotlinx.serialization.UnstableDefault
-import pl.krakow.riichi.chombot.commands.Command
+import pl.krakow.riichi.chombot.commands.interfaces.CommandMessageCreate
 import pl.krakow.riichi.chombot.commands.kcc3client.Chombo
 import pl.krakow.riichi.chombot.commands.kcc3client.Kcc3Client
 import reactor.core.publisher.Mono
@@ -10,12 +10,12 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @UnstableDefault
-class ChomboCommand(private val formatter: Formatter, private val kcc3Client: Kcc3Client) : Command {
+class ChomboCommand(private val formatter: Formatter, private val kcc3Client: Kcc3Client) : CommandMessageCreate() {
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, yyyy-MM-dd HH:mm")
     }
 
-    override fun execute(event: MessageCreateEvent): Mono<Void> {
+    override fun executeMessageCreate(event: MessageCreateEvent): Mono<Void> {
         val subcommand = event.message.content.get().split(Regex("""\s+""")).getOrNull(1).orEmpty()
 
         return when {

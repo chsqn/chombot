@@ -2,7 +2,7 @@ package pl.krakow.riichi.chombot
 
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.event.domain.lifecycle.ReadyEvent
-import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.event.domain.message.MessageEvent
 import kotlinx.serialization.UnstableDefault
 import pl.krakow.riichi.chombot.commands.AkagiInflationRate
 import pl.krakow.riichi.chombot.commands.AtEveryoneAngryReactions
@@ -11,7 +11,6 @@ import pl.krakow.riichi.chombot.commands.chombo.SimpleEmbedFormatter
 import pl.krakow.riichi.chombot.commands.hand.DrawHandCommand
 import pl.krakow.riichi.chombot.commands.kcc3client.Kcc3Client
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.net.URI
 import kotlin.system.exitProcess
 
@@ -36,24 +35,21 @@ fun main() {
         "_everyone" to AtEveryoneAngryReactions()
     )
 
-    client.eventDispatcher.on(MessageCreateEvent::class.java)
+    client.eventDispatcher.on(MessageEvent::class.java)
         .flatMap { event ->
-            if (event.message.author.get().isBot) {
-                Mono.empty()
-            } else {
-                Flux.fromIterable(commandMap.entries)
-                    .filter { entry -> entry.value.isApplicable(event, entry.key) }
-                    .flatMap { entry -> entry.value.execute(event) }
-                    .onErrorResume { error ->
-                        event.message.channel.flatMap { channel ->
-                            channel.createMessage("Error occurred when executing the command: `$error`")
-                        }.then()
-                    }
-                    .doOnError { error ->
-                        error.printStackTrace()
-                    }
-                    .next()
-            }
+            Flux.fromIterable(commandMap.entries)
+                .filter { entry -> entry.value.isApplicable(event, entry.key) }
+                .flatMap { entry -> entry.value.execute(event) }
+//                TODO: how to replace that?
+//                .onErrorResume { error ->
+//                    event.message.channel.flatMap { channel ->
+//                        channel.createMessage("Error occurred when executing the command: `$error`")
+//                    }.then()
+//                }
+                .doOnError { error ->
+                    error.printStackTrace()
+                }
+                .next()
         }
         .subscribe()
 

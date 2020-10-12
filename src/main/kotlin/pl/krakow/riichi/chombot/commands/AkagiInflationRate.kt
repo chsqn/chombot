@@ -1,11 +1,12 @@
 package pl.krakow.riichi.chombot.commands
 
 import discord4j.core.event.domain.message.MessageCreateEvent
+import pl.krakow.riichi.chombot.commands.interfaces.CommandMessageCreate
 import reactor.core.publisher.Mono
 import java.util.*
 import kotlin.random.asKotlinRandom
 
-class AkagiInflationRate : Command {
+class AkagiInflationRate : CommandMessageCreate() {
     companion object {
         const val MIN_VALUE: Long = 1000L
         const val MAX_VALUE: Long = 99_999_999_999L
@@ -37,7 +38,7 @@ class AkagiInflationRate : Command {
         }
     }
 
-    override fun execute(event: MessageCreateEvent): Mono<Void> {
+    override fun executeMessageCreate(event: MessageCreateEvent): Mono<Void> {
         return event.message.content.orElse(null)?.let {
             findNumber(it)?.let {
                 event.message.channel.flatMap { channel ->
@@ -49,7 +50,7 @@ class AkagiInflationRate : Command {
         } ?: Mono.empty()
     }
 
-    override fun isApplicable(event: MessageCreateEvent, commandName: String): Boolean {
+    override fun isApplicableMessageCreate(event: MessageCreateEvent, commandName: String): Boolean {
         return event.message.content.orElse(null)?.let { findNumber(it) } != null &&
                 random.nextDouble() < RUN_PROBABILITY
     }
