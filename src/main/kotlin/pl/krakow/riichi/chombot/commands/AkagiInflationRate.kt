@@ -51,7 +51,8 @@ class AkagiInflationRate : CommandMessageCreate() {
     }
 
     override fun isApplicableMessageCreate(event: MessageCreateEvent, commandName: String): Boolean {
-        return event.message.content.orElse(null)?.let { findNumber(it) } != null &&
+        return !event.message.author.get().isBot && event.message.content.orElse(null)
+            ?.let { findNumber(it) } != null &&
                 random.nextDouble() < RUN_PROBABILITY
     }
 }
